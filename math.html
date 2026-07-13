@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics - MCQ & CQ</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== ওভাররাইড ও এক্সট্রা ===== */
+        body { font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif; }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            gap: 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+        .quiz-header .back-btn {
+            color: var(--text2);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: 50px;
+            background: var(--surface);
+        }
+        .quiz-header .back-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        .quiz-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--hero-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+        .mode-tabs {
+            display: flex;
+            gap: 10px;
+            background: var(--surface2);
+            padding: 6px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+        .tab-btn {
+            padding: 8px 24px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            background: transparent;
+            color: var(--text2);
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--glow);
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== MCQ: ১ কলাম (প্রতি লাইনে ১টি) ===== */
+        .mcq-grid {
+            display: grid;
+            grid-template-columns: 1fr;  /* <- এখানে ১ কলাম করা হয়েছে */
+            gap: 24px;
+        }
+        .question-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            transition: var(--transition);
+            height: fit-content;
+        }
+        .question-card:hover { border-color: var(--accent); }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        /* অপশনগুলো ২ কলামে থাকবে (যাতে জায়গা বাঁচে) */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .option {
+            padding: 10px 14px;
+            background: var(--surface2);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--text2);
+            font-family: 'Hind Siliguri', sans-serif;
+            font-size: 0.95rem;
+        }
+        .option:hover:not(.disabled) {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+        .option.correct {
+            border-color: #22c55e;
+            background: rgba(34,197,94,0.15);
+            color: #22c55e;
+        }
+        .option.wrong {
+            border-color: #ef4444;
+            background: rgba(239,68,68,0.15);
+            color: #ef4444;
+        }
+        .option.show-correct {
+            border-color: #22c55e;
+            background: rgba(34,197,94,0.08);
+        }
+        .option.selected-option {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--glow);
+        }
+        .option.disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+        .explanation-box {
+            margin-top: 14px;
+            padding: 14px 18px;
+            background: var(--surface);
+            border-left: 4px solid var(--accent2);
+            border-radius: var(--radius-sm);
+            display: none;
+            font-size: 0.95rem;
+        }
+        .explanation-box.visible { display: block; }
+        .explanation-box strong { color: var(--accent2); }
+
+        .timer-bar {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent3);
+            background: var(--card);
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            display: inline-block;
+        }
+        .test-controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px auto 20px;
+        }
+        .test-controls .btn {
+            padding: 12px 32px;
+            font-size: 1rem;
+            min-width: 140px;
+        }
+        .result-summary {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-top: 30px;
+            display: none;
+        }
+        .result-summary.visible { display: block; }
+        .result-summary .score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            background: var(--hero-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===== CQ ===== */
+        .stimulus-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 26px;
+            margin-bottom: 30px;
+            font-style: italic;
+            color: var(--text2);
+            border-left: 4px solid var(--accent3);
+        }
+        .stimulus-box strong {
+            color: var(--text);
+            font-style: normal;
+        }
+        .cq-question-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px 22px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .cq-question-item:hover { border-color: var(--accent); }
+        .cq-question-item .q-label {
+            font-weight: 700;
+            color: var(--accent2);
+            font-size: 1.1rem;
+        }
+        .cq-question-item .q-text {
+            color: var(--text);
+            margin: 6px 0 4px 0;
+            font-weight: 500;
+        }
+        .cq-solution-box {
+            margin-top: 14px;
+            padding: 16px 20px;
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+            display: none;
+            border: 1px dashed var(--accent);
+        }
+        .cq-solution-box.visible { display: block; }
+        .cq-solution-box .sol-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--text);
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            text-align: left;
+            display: block;
+        }
+
+        .cq-concept-wrapper {
+            margin-top: 30px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 26px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .cq-concept-wrapper:hover { border-color: var(--accent); }
+        .cq-concept-wrapper h4 {
+            color: var(--accent2);
+            margin: 0;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cq-concept-wrapper h4 span {
+            font-size: 0.8rem;
+            color: var(--text3);
+        }
+        .cq-concept-content {
+            display: none;
+            margin-top: 16px;
+        }
+        .cq-concept-content.visible { display: block; }
+        .cq-concept-content p, .cq-concept-content li {
+            color: var(--text2);
+            line-height: 1.8;
+        }
+        .cq-concept-content ul { padding-left: 20px; }
+
+        .drive-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--surface2);
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            color: var(--text2);
+            text-decoration: none;
+            transition: var(--transition);
+            margin-bottom: 20px;
+            font-family: 'Hind Siliguri', sans-serif;
+        }
+        .drive-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .drive-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        @media (max-width: 768px) {
+            .quiz-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+            .mode-tabs { justify-content: center; }
+            .mcq-grid { grid-template-columns: 1fr; gap: 16px; }
+            .options-grid { grid-template-columns: 1fr; } /* মোবাইলে অপশন ১ কলাম */
+            .question-card { padding: 16px; }
+            .timer-bar { font-size: 1.4rem; padding: 4px 16px; }
+            .stimulus-box { padding: 16px; }
+            .cq-question-item { padding: 14px 16px; }
+            .test-controls .btn { padding: 10px 20px; font-size: 0.9rem; min-width: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+
+    <div class="quiz-header">
+        <a href="index.html" class="back-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6" />
+            </svg> Back
+        </a>
+        <h2>Mathematics</h2>
+        <div class="mode-tabs">
+            <button class="tab-btn active" data-tab="mcq" id="tabMcq">MCQ</button>
+            <button class="tab-btn" data-tab="cq" id="tabCq">CQ</button>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+        <a href="https://drive.google.com/file/d/1mfMuOfvLkILHdWdkWJ9qXaA2P1fn206C/view?usp=sharing" target="_blank" class="drive-btn">
+            <svg viewBox="0 0 24 24"><path d="M7.6 12.3L4.3 18h15.4l-3.3-5.7H7.6zm2.4-4.3L12 4l2.1 4h-4.1z"/><path d="M4.3 18h15.4l-3.3-5.7H7.6L4.3 18zm3.3-5.7l3.3-5.7h4.1l3.3 5.7H7.6z"/></svg>
+            Original Question Paper (Drive)
+        </a>
+    </div>
+
+    <!-- ====== MCQ TAB ====== -->
+    <div id="mcqTab" class="tab-content active">
+        <div id="timerContainer" style="text-align:center; display:none; margin-bottom:20px;">
+            <span class="timer-bar" id="timerDisplay">25:00</span>
+            <p style="color:var(--text3); font-size:0.9rem; margin-top:4px;">Time Left</p>
+        </div>
+
+        <div style="display:flex; gap:12px; justify-content:center; margin-bottom:24px; flex-wrap:wrap;">
+            <button class="btn btn-primary mode-btn active" data-mode="practice" id="modePractice" style="padding:8px 28px;">Practice</button>
+            <button class="btn btn-outline mode-btn" data-mode="live" id="modeLive" style="padding:8px 28px;">Live Test</button>
+        </div>
+
+        <div id="questionsContainer" class="mcq-grid"></div>
+
+        <div class="test-controls" id="testControls" style="display:none;">
+            <button class="btn btn-primary" id="submitTestBtn">Submit Test</button>
+            <button class="btn btn-outline" id="exitTestBtn">Exit Test</button>
+        </div>
+
+        <div class="result-summary" id="resultSummary">
+            <div class="score" id="scoreDisplay">0/0</div>
+            <div id="resultDetails" style="margin-top:20px;"></div>
+        </div>
+    </div>
+
+    <!-- ====== CQ TAB ====== -->
+    <div id="cqTab" class="tab-content">
+        <div id="cqStimulus" class="stimulus-box">
+            <strong>Stimulus:</strong><br>
+            <span id="stimulusText">Loading...</span>
+        </div>
+        <div id="cqQuestionsContainer"></div>
+
+        <div class="cq-concept-wrapper" id="conceptToggle">
+            <h4>Detailed Concept & Alternative Methods <span>▼</span></h4>
+            <div class="cq-concept-content" id="conceptContent">Loading...</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // =================================================================
+    // 1. MCQ DATA (25টি)
+    // =================================================================
+    const mcqData = [
+        // 1
+        {
+            q: "$\\begin{matrix}2&-1&0\\\\ 4&3&-5\\\\ 7&6&-8\\end{matrix}$ নির্ণায়কে (2,1) তম সহগুনকের মান-",
+            options: ["-8", "-3", "3", "8"],
+            answer: 0,
+            explanation: "প্রদত্ত নির্ণায়কের (2,1) তম ভুক্তি হলো 4। যেকোনো ভুক্তির সহগুণক নির্ণয়ের সূত্র: $(-1)^{i+j} \\times M_{ij}$ (যেখানে $M_{ij}$ হলো অনুরাশি)। (2,1) তম ভুক্তির সহগুণক $=(-1)^{2+1} \\times |\\begin{matrix}-1&0\\\\ 6&-8\\end{matrix}| = (-1)^3 \\times ((-1) \\times (-8)-0 \\times 6) = -1 \\times (8-0) = -8$"
+        },
+        // 2
+        {
+            q: "$A=\\begin{matrix}1&0&0\\\\ 0&2&0\\\\ 0&0&3\\end{matrix}$ একটি- i. প্রতিসম ম্যাট্রিক্স ii. কর্ণ ম্যাট্রিক্স iii. স্কেলার ম্যাট্রিক্স। নিচের কোনটি সঠিক?",
+            options: ["i ও ii", "i ও iii", "ii ও iii", "i, ii ও iii"],
+            answer: 0,
+            explanation: "ম্যাট্রিক্সটির প্রধান কর্ণের উপাদানগুলো বাদে বাকি সব উপাদান শূন্য, তাই এটি একটি কর্ণ ম্যাট্রিক্স (ii সঠিক)। যেকোনো কর্ণ ম্যাট্রিক্সের ক্ষেত্রে $A^T=A$ হয়, ফলে এটি একটি প্রতিসম ম্যাট্রিক্স (i সঠিক)। স্কেলার ম্যাট্রিক্স হওয়ার শর্ত হলো প্রধান কর্ণের সবগুলো উপাদান সমান হতে হবে, কিন্তু এখানে উপাদানগুলো (1, 2, 3) ভিন্ন, তাই এটি স্কেলার ম্যাট্রিক্স নয় (iii ভুল)। সুতরাং, সঠিক উত্তর i ও ii।"
+        },
+        // 3
+        {
+            q: "$|(2A)^{-1}|$ এর মান - (যখন $A=\\begin{matrix}1&0&0\\\\ 0&2&0\\\\ 0&0&3\\end{matrix}$)",
+            options: ["$\\frac{1}{48}$", "$-\\frac{1}{48}$", "$-\\frac{1}{12}$", "$\\frac{1}{12}$"],
+            answer: 0,
+            explanation: "$|A|=1 \\times 2 \\times 3=6$। $|2A|=2^3 \\times 6 = 48$। সুতরাং, $|(2A)^{-1}| = \\frac{1}{48}$।"
+        },
+        // 4
+        {
+            q: "$A=\\begin{matrix}-1&-1\\\\ 2&-3\\end{matrix}$ হলে $Adj(A)=?$",
+            options: ["$\\begin{matrix}-3&1\\\\ 2&1\\end{matrix}$", "$\\begin{matrix}-3&1\\\\ -2&-1\\end{matrix}$", "$\\begin{matrix}3&1\\\\ -2&-1\\end{matrix}$", "$\\begin{matrix}-3&-1\\\\ -2&-1\\end{matrix}$"],
+            answer: 1,
+            explanation: "$2 \\times 2$ ম্যাট্রিক্সের $Adj(A)$ নির্ণয়ের সংক্ষিপ্ত নিয়ম: প্রধান কর্ণের ভুক্তিগুলো ($-1$ এবং $-3$) নিজেদের মধ্যে স্থান বিনিময় করবে। গৌণ কর্ণের ভুক্তিগুলো ($-1$ এবং $2$) তাদের চিহ্ন পরিবর্তন করবে। এই নিয়ম প্রয়োগ করলে, $Adj(A)=\\begin{matrix}-3&1\\\\ -2&-1\\end{matrix}$।"
+        },
+        // 5
+        {
+            q: "একটি সভা শেষে প্রত্যেকে প্রত্যেকের সাথে করমর্দন করলেন। করমর্দনের সংখ্যা 55 হলে কত জন সভায় উপস্থিত ছিলেন?",
+            options: ["11", "12", "24", "33"],
+            answer: 0,
+            explanation: "ধরি, সভায় উপস্থিত মোট সদস্য সংখ্যা $n$। দুজন ব্যক্তির মধ্যে ১ বার করমর্দন হয়, তাই মোট করমর্দনের সংখ্যা হবে $^nC_2$। প্রশ্নমতে, $^nC_2=55 \\Rightarrow \\frac{n(n-1)}{2}=55 \\Rightarrow n^2-n-110=0 \\Rightarrow (n-11)(n+10)=0 \\Rightarrow n=11$।"
+        },
+        // 6
+        {
+            q: "'COLLEGE' শব্দটির বর্ণগুলোর বিন্যাস সংখ্যা-",
+            options: ["1260", "2520", "5040", "160"],
+            answer: 0,
+            explanation: "'COLLEGE' শব্দটিতে মোট বর্ণ 7টি, L আছে 2টি, E আছে 2টি। মোট বিন্যাস = $\\frac{7!}{2! \\times 2!} = \\frac{5040}{4} = 1260$।"
+        },
+        // 7
+        {
+            q: "$f(x)=(x-3)^2$ ফাংশনের স্কেচ কোনটি? (চিত্র সংযুক্ত নয়)",
+            options: ["ডানদিকে 3 একক সরে যাওয়া পরাবৃত্ত", "বামদিকে 3 একক সরে যাওয়া পরাবৃত্ত", "উপরের দিকে 3 একক সরে যাওয়া পরাবৃত্ত", "নিচের দিকে 3 একক সরে যাওয়া পরাবৃত্ত"],
+            answer: 0,
+            explanation: "$y=(x-3)^2$ একটি পরাবৃত্ত যার শীর্ষবিন্দু $(3,0)$ এবং এটি উপরের দিকে খোলা। তাই ডানদিকে 3 একক সরে যাওয়া পরাবৃত্ত।"
+        },
+        // 8
+        {
+            q: "$f(x)=2x+5, g(x)=3x+2$ হলে $(f \\circ g)(-1)$ এর মান-",
+            options: ["-7", "-3", "3", "7"],
+            answer: 2,
+            explanation: "$g(-1)=3(-1)+2=-1$। $f(g(-1))=f(-1)=2(-1)+5=3$।"
+        },
+        // 9
+        {
+            q: "(2,5) ও (-4,-6) বিন্দুদ্বয়ের সংযোগ রেখাংশকে X-অক্ষ কি অনুপাতে বিভক্ত করে?",
+            options: ["5:6", "6:5", "1:2", "2:1"],
+            answer: 0,
+            explanation: "X-অক্ষের উপর y=0। $0=\\frac{m_1(-6)+m_2(5)}{m_1+m_2} \\Rightarrow -6m_1+5m_2=0 \\Rightarrow \\frac{m_1}{m_2}=\\frac{5}{6}$।"
+        },
+        // 10
+        {
+            q: "$\\sqrt{3}x-2y+6=0$ এবং $3x+ky-5=0$ সরলরেখাদ্বয় পরস্পর লম্ব হলে k এর মান-",
+            options: ["$-2\\sqrt{3}$", "$-\\frac{3\\sqrt{3}}{2}$", "$\\frac{3\\sqrt{3}}{2}$", "$2\\sqrt{3}$"],
+            answer: 2,
+            explanation: "প্রথম রেখার ঢাল $m_1=\\frac{\\sqrt{3}}{2}$, দ্বিতীয় রেখার ঢাল $m_2=-\\frac{3}{k}$। লম্ব শর্ত $m_1 \\times m_2=-1 \\Rightarrow \\frac{\\sqrt{3}}{2} \\times \\left(-\\frac{3}{k}\\right)=-1 \\Rightarrow k=\\frac{3\\sqrt{3}}{2}$।"
+        },
+        // 11
+        {
+            q: "প্রথম সরলরেখাটি x-অক্ষের সাথে কত কোণ উৎপন্ন করে? (যদি রেখা $\\sqrt{3}x-y+6=0$ হয়)",
+            options: ["30°", "60°", "90°", "120°"],
+            answer: 1,
+            explanation: "ঢাল $m=\\sqrt{3}$। $\\tan\\theta = \\sqrt{3} \\Rightarrow \\theta=60°$।"
+        },
+        // 12
+        {
+            q: "$\\frac{1}{2}$ ঢালবিশিষ্ট সরলরেখাটি $kx+2y-5=0$ সরলরেখার উপর লম্ব হলে k এর মান-",
+            options: ["$\\frac{1}{4}$", "$\\frac{1}{2}$", "2", "4"],
+            answer: 3,
+            explanation: "$m_1=\\frac{1}{2}, m_2=-\\frac{k}{2}$। $\\frac{1}{2} \\times \\left(-\\frac{k}{2}\\right)=-1 \\Rightarrow k=4$।"
+        },
+        // 13
+        {
+            q: "$x^2+y^2-2x-4y-4=0$ বৃত্তের (1,-1) বিন্দুতে স্পর্শকের সমীকরণ-",
+            options: ["$y+1=0$", "$y-1=0$", "$x+1=0$", "$x-1=0$"],
+            answer: 0,
+            explanation: "স্পর্শকের সূত্রে $g=-1, f=-2, c=-4$ এবং বিন্দু (1,-1) বসিয়ে পাই $y+1=0$।"
+        },
+        // 14
+        {
+            q: "(2,3) কেন্দ্র এবং 10 একক ব্যাসবিশিষ্ট বৃত্তটি দ্বারা x-অক্ষের খন্ডিত অংশের দৈর্ঘ্য হবে-",
+            options: ["4 একক", "8 একক", "$\\sqrt{21}$ একক", "$2\\sqrt{21}$ একক"],
+            answer: 1,
+            explanation: "ব্যাসার্ধ $r=5$। সমীকরণ: $(x-2)^2+(y-3)^2=25 \\Rightarrow x^2+y^2-4x-6y-12=0$। $g=-2, c=-12$। খণ্ডিত অংশ $=2\\sqrt{g^2-c}=2\\sqrt{4+12}=8$।"
+        },
+        // 15
+        {
+            q: "$x^2+y^2-6x-4y-12=0$ বৃত্তটি- i. মূলবিন্দুগামী নয় ii. x-অক্ষ থেকে $2\\sqrt{21}$ একক অংশ খন্ডন করে iii. একটি বিন্দুবৃত্ত। কোনটি সঠিক?",
+            options: ["i ও ii", "i ও iii", "ii ও iii", "i, ii ও iii"],
+            answer: 0,
+            explanation: "$c=-12 \\neq 0$ তাই মূলবিন্দুগামী নয় (i সঠিক)। $X$-অক্ষ থেকে খণ্ডিত অংশ $=2\\sqrt{g^2-c}=2\\sqrt{9+12}=2\\sqrt{21}$ (ii সঠিক)। ব্যাসার্ধ $\\sqrt{9+4+12}=5 \\neq 0$, তাই বিন্দুবৃত্ত নয় (iii ভুল)।"
+        },
+        // 16
+        {
+            q: "2 টা 45 মিনিটের সময় ঘন্টার কাঁটা ও মিনিটের কাঁটার অন্তর্গত কোণ-",
+            options: ["22.5°", "157.5°", "172.5°", "187.5°"],
+            answer: 2,
+            explanation: "$\\theta=|30H - 5.5M| = |30(2)-5.5(45)| = |60-247.5| = 187.5°$ (প্রবৃদ্ধ কোণ)। ক্ষুদ্রতর কোণ $=360-187.5=172.5°$।"
+        },
+        // 17
+        {
+            q: "$f(x)=2+\\sqrt{2+\\sin^2x}$ এর সর্বোচ্চ মান-",
+            options: ["2", "$2-\\sqrt{2}$", "$2+\\sqrt{2}$", "$2+\\sqrt{3}$"],
+            answer: 3,
+            explanation: "$\\sin^2 x$ এর সর্বোচ্চ মান 1। $f(x)_{max}=2+\\sqrt{2+1}=2+\\sqrt{3}$।"
+        },
+        // 18
+        {
+            q: "n জোড় সংখ্যা হলে $\\cos\\{2n\\pi+(-1)^n\\frac{\\pi}{3}\\}$ এর মান-",
+            options: ["$-\\frac{1}{2}$", "$-\\frac{\\sqrt{3}}{2}$", "$\\frac{1}{2}$", "$\\frac{\\sqrt{3}}{2}$"],
+            answer: 2,
+            explanation: "n জোড় হলে $(-1)^n=1$। $\\cos(2n\\pi+\\frac{\\pi}{3})=\\cos\\frac{\\pi}{3}=\\frac{1}{2}$।"
+        },
+        // 19
+        {
+            q: "একক ব্যাসার্ধের বৃত্তে অন্তর্লিখিত একটি সমবাহু ত্রিভুজের বাহুর দৈর্ঘ্য কত একক?",
+            options: ["1", "$\\frac{\\sqrt{3}}{2}$", "$\\sqrt{3}$", "2"],
+            answer: 2,
+            explanation: "সাইন সূত্রে $R=1$, $\\frac{a}{\\sin 60°}=2 \\Rightarrow a=2 \\times \\frac{\\sqrt{3}}{2}=\\sqrt{3}$।"
+        },
+        // 20
+        {
+            q: "x এর সাপেক্ষে $\\frac{\\sqrt{1+\\sin 4x}}{\\sin 2x+\\cos 2x}$ এর অন্তরজ কোনটি?",
+            options: ["0", "1", "$2\\sin 2x$", "$2\\cos 2x$"],
+            answer: 0,
+            explanation: "$\\sqrt{1+\\sin 4x} = |\\sin 2x+\\cos 2x|$। রাশি = 1, এর অন্তরজ 0।"
+        },
+        // 21
+        {
+            q: "$\\frac{d^n}{dx^n}(\\sin x) = ?$",
+            options: ["$\\sin(n\\pi+x)$", "$\\sin(\\frac{n\\pi}{2}+x)$", "$\\cos(n\\pi+x)$", "$\\cos(\\frac{n\\pi}{2}+x)$"],
+            answer: 1,
+            explanation: "প্যাটার্ন অনুসারে, $n$-তম অন্তরজ $\\sin(x+\\frac{n\\pi}{2})$।"
+        },
+        // 22
+        {
+            q: "$\\int \\sec^2 x e^{\\tan x} dx = ?$",
+            options: ["$e^{\\tan x}+c$", "$-e^{\\tan x}+c$", "$e^{\\cot x}+c$", "$-e^{\\cot x}+c$"],
+            answer: 0,
+            explanation: "$\\tan x = z$ ধরলে $dz=\\sec^2 x dx$। সমাকলন $\\int e^z dz = e^{\\tan x}+c$।"
+        },
+        // 23
+        {
+            q: "$\\int_0^{\\pi/2} \\frac{dx}{1+\\cos x} = ?$",
+            options: ["0", "1", "$\\frac{1}{2}$", "$\\frac{3}{2}$"],
+            answer: 1,
+            explanation: "$1+\\cos x=2\\cos^2\\frac{x}{2}$। $\\frac{1}{2}\\int_0^{\\pi/2} \\sec^2\\frac{x}{2} dx = [\\tan\\frac{x}{2}]_0^{\\pi/2} = \\tan\\frac{\\pi}{4}-\\tan0 = 1$।"
+        },
+        // 24
+        {
+            q: "x + 3 = 7 হলে, x এর মান কত?",
+            options: ["2", "3", "4", "5"],
+            answer: 2,
+            explanation: "x = 7 - 3 = 4।"
+        },
+        // 25
+        {
+            q: "একটি ত্রিভুজের তিন কোণের সমষ্টি কত?",
+            options: ["90°", "180°", "270°", "360°"],
+            answer: 1,
+            explanation: "যেকোনো ত্রিভুজের অন্তঃস্থ কোণের সমষ্টি 180°।"
+        }
+    ];
+
+    // =================================================================
+    // 2. CQ DATA (৮টি সম্পূর্ণ)
+    // =================================================================
+    const cqData = [
+        // ১ নং
+        {
+            stimulus: "$A=\\begin{matrix}b+c&a+b&a\\\\ c+a&b+c&b\\\\ a+b&c+a&c\\end{matrix}$ এবং $B=\\begin{matrix}2&1&-1\\\\ 0&2&1\\\\ 5&2&-3\\end{matrix}$",
+            questions: [
+                {
+                    id: "ক",
+                    text: "দেখাও যে, $\\begin{matrix}pq&q^2\\\\ -p^2&-pq\\end{matrix}$ একটি শূন্যঘাতি ম্যাট্রিক্স এবং এর সূচক 2।",
+                    solution: `ধরি, প্রদত্ত ম্যাট্রিক্স $M=\\begin{matrix}pq&q^2\\\\ -p^2&-pq\\end{matrix}$\n$M^2=M \\times M$\n$M^2=\\begin{matrix}pq&q^2\\\\ -p^2&-pq\\end{matrix} \\begin{matrix}pq&q^2\\\\ -p^2&-pq\\end{matrix}$\n$M^2=\\begin{matrix}(pq)(pq)+(q^2)(-p^2)&(pq)(q^2)+(q^2)(-pq)\\\\ (-p^2)(pq)+(-pq)(-p^2)&(-p^2)(q^2)+(-pq)(-pq)\\end{matrix}$\n$M^2=\\begin{matrix}p^2q^2-p^2q^2&pq^3-pq^3\\\\ -p^3q+p^3q&-p^2q^2+p^2q^2\\end{matrix}$\n$M^2=\\begin{matrix}0&0\\\\ 0&0\\end{matrix}$\nযেহেতু $M^2=0$, তাই $M$ একটি শূন্যঘাতী ম্যাট্রিক্স যার সূচক 2। (প্রমাণিত)`
+                },
+                {
+                    id: "খ",
+                    text: "দেখাও যে, $|A|=a^3+b^3+c^3-3abc$",
+                    solution: `$|A|=|\\begin{matrix}b+c&a+b&a\\\\ c+a&b+c&b\\\\ a+b&c+a&c\\end{matrix}|$\n$C_1 \\rightarrow C_1-C_2+C_3$ প্রয়োগ করে পাই:\n$|A|=|\\begin{matrix}c&a+b&a\\\\ a&b+c&b\\\\ b&c+a&c\\end{matrix}|$\n$C_2 \\rightarrow C_2-C_3$ প্রয়োগ করে পাই:\n$|A|=|\\begin{matrix}c&b&a\\\\ a&c&b\\\\ b&a&c\\end{matrix}|$\n$|A|=c(c^2-ab)-b(ac-b^2)+a(a^2-bc)$\n$|A|=c^3-abc-abc+b^3+a^3-abc$\n$|A|=a^3+b^3+c^3-3abc$ (প্রমাণিত)`
+                },
+                {
+                    id: "গ",
+                    text: "$(B^T)^{-1}$ নির্ণয় করো।",
+                    solution: `$B^T=\\begin{matrix}2&0&5\\\\ 1&2&2\\\\ -1&1&-3\\end{matrix}$\n$|B^T|=2(-6-2)-0(-3+2)+5(1+2)= -16+15=-1$\nসহগুণক ম্যাট্রিক্স:\n$\\begin{matrix}-8&1&3\\\\ 5&-1&-2\\\\ -10&1&4\\end{matrix}$\n$Adj(B^T)=\\begin{matrix}-8&5&-10\\\\ 1&-1&1\\\\ 3&-2&4\\end{matrix}$\n$(B^T)^{-1}=\\frac{1}{-1} \\begin{matrix}-8&5&-10\\\\ 1&-1&1\\\\ 3&-2&4\\end{matrix}\n= \\begin{matrix}8&-5&10\\\\ -1&1&-1\\\\ -3&2&-4\\end{matrix}$ (Ans.)`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট ও সূত্রাবলী:\nশূন্যঘাতী ম্যাট্রিক্স: কোনো বর্গ ম্যাট্রিক্স A কে শূন্যঘাতী বলা হবে যদি এর কোনো ধনাত্মক পূর্ণসংখ্যক ঘাত k এর জন্য A^k=O হয়।\nনির্ণায়কের ধর্ম: কলাম অপারেশন C_i → C_i ± C_j করলে মান অপরিবর্তিত থাকে।\nবিপরীত ম্যাট্রিক্স: A^{-1} = (1/|A|) Adj(A)।\nবিকল্প নিয়ম: (খ) এর প্রমাণ C_1+C_2+C_3 করে a+b+c কমন নিয়েও করা যায়।\nকমন ভুল: Adj(A) নির্ণয়ের সময় সহগুণক ম্যাট্রিক্স ট্রান্সপোজ করতে ভুলে যাওয়া।`
+        },
+        // ২ নং
+        {
+            stimulus: "OABC একটি সামান্তরিকের OC বাহুর সমীকরণ 3x+y=0 এবং OC বাহুটি, 3x+4y+1=0 ও L=0 রেখাদ্বয়ের মধ্যবর্তী কোণের সমদ্বিখন্ডক।",
+            questions: [
+                {
+                    id: "ক",
+                    text: "একটি সরলরেখার ভেক্টর সমীকরণ নির্ণয় কর, যা z-অক্ষের সমান্তরাল ও (4,-3,-1) বিন্দুগামী।",
+                    solution: `z-অক্ষের সমান্তরাল ভেক্টর $\\vec{b}=\\hat{k}$\nবিন্দুর অবস্থান ভেক্টর $\\vec{a}=4\\hat{i}-3\\hat{j}-\\hat{k}$\nরেখার ভেক্টর সমীকরণ: $\\vec{r}=\\vec{a}+t\\vec{b}$\n$\\vec{r}=(4\\hat{i}-3\\hat{j}-\\hat{k})+t\\hat{k}$`
+                },
+                {
+                    id: "খ",
+                    text: "A বিন্দুতে AB রেখার উপর লম্বের সমীকরণ নির্ণয় করো।",
+                    solution: `OC রেখার ঢাল m_1=-3, তাই AB এর ঢাল -3। B(-6,3) দিয়ে AB: 3x+y+15=0\nOA y=0, সুতরাং A(-5,0)।\nAB এর উপর লম্বের ঢাল = 1/3।\nলম্বের সমীকরণ: y-0 = (1/3)(x+5) ⇒ x - 3y + 5 = 0`
+                },
+                {
+                    id: "গ",
+                    text: "L=0 রেখাটির সমীকরণ নির্ণয় করো।",
+                    solution: `OC: 3x+y=0 (ঢাল m=-3), প্রথম রেখা 3x+4y+1=0 (ঢাল m_1=-3/4)\nসমদ্বিখণ্ডক সূত্র থেকে অপর রেখার ঢাল m_2 = 24/7\nছেদবিন্দু: (1/9, -1/3)\nL=0: y+1/3 = (24/7)(x-1/9) ⇒ 24x - 7y - 5 = 0`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট: সামান্তরিকের বিপরীত বাহু সমান্তরাল, সমদ্বিখণ্ডকের সাপেক্ষে কোণ সমান হওয়ার শর্ত।\nবিকল্প নিয়ম: ছেদবিন্দুগামী রেখার সমীকরণ 3x+4y+1+k(3x+y)=0 ধরে সমাধান।\nকমন ভুল: পরমমান থেকে দুটি মান বের করার সময় একটি বাদ পড়ে যাওয়া।`
+        },
+        // ৩ নং
+        {
+            stimulus: "বৃত্তটির একটি ব্যাস CD এর সমীকরণ, 4x+3y=0",
+            questions: [
+                {
+                    id: "ক",
+                    text: "(1,-1) বিন্দু হতে $2x^2+2y^2-x+3y+1=0$ বৃত্তে অংকিত স্পর্শকের দৈর্ঘ্য নির্ণয় করো।",
+                    solution: `সমীকরণকে 2 দিয়ে ভাগ: $x^2+y^2-\\frac{1}{2}x+\\frac{3}{2}y+\\frac{1}{2}=0$\nস্পর্শকের দৈর্ঘ্য $L=\\sqrt{x_1^2+y_1^2+2gx_1+2fy_1+c}$\n$L=\\sqrt{1+1-\\frac{1}{2}-\\frac{3}{2}+\\frac{1}{2}}=\\sqrt{0.5}=\\frac{1}{\\sqrt{2}}$ একক।`
+                },
+                {
+                    id: "খ",
+                    text: "উদ্দিপকের বৃত্তটির সমীকরণ নির্ণয় করো।",
+                    solution: `বৃত্তটি y-অক্ষকে A(0,-2) ও B(0,6) বিন্দুতে ছেদ করে।\nধরি সমীকরণ: $x^2+y^2+2gx+2fy+c=0$\nA ও B বসিয়ে f=-2, c=-12 পাই।\nকেন্দ্র (-g, 2) CD (4x+3y=0) এর উপর: 4(-g)+3(2)=0 ⇒ g=3/2\n∴ সমীকরণ: $x^2+y^2+3x-4y-12=0$`
+                },
+                {
+                    id: "গ",
+                    text: "এমন বৃত্তের সমীকরণ নির্ণয় কর যা CD রেখাকে এবং y-অক্ষকে B বিন্দুতে স্পর্শ করে।",
+                    solution: `B(0,6) তে y-অক্ষ স্পর্শ করে, তাই বৃত্ত: $(x-h)^2+(y-6)^2=h^2$\nকেন্দ্র (h,6) থেকে CD (4x+3y=0) এর দূরত্ব = |h|\n$\\frac{|4h+18|}{5}=|h|$ ⇒ h=18 বা h=-2\nh=18: $(x-18)^2+(y-6)^2=324$\nh=-2: $(x+2)^2+(y-6)^2=4$`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট: স্পর্শকের দৈর্ঘ্য, অক্ষকে স্পর্শকারী বৃত্তের সমীকরণ।\nকমন ভুল: সমীকরণকে ২ দিয়ে ভাগ না করে g,f,c বের করা।`
+        },
+        // ৪ নং
+        {
+            stimulus: "NEWZEALAND ক্রিকেট দলে 8 জন ব্যাটসম্যান, 5 জন বোলার ও 2 জন উইকেট রক্ষক আছে।",
+            questions: [
+                {
+                    id: "ক",
+                    text: "$f(x)=\\frac{1}{\\sqrt{|x|-x}}$ ফাংশনটি ডোমেন নির্ণয় করো।",
+                    solution: `$|x|-x>0$ ⇒ $|x|>x$। এটি সত্য হয় যখন $x<0$।\nডোমেন $D_f = (-\\infty, 0)$`
+                },
+                {
+                    id: "খ",
+                    text: "কমপক্ষে 3 জন বোলার ও কমপক্ষে 1 জন উইকেট রক্ষক নিয়ে কত ভাবে 11 জনের দল গঠন করা যায়?",
+                    solution: `সম্ভাব্য ৬টি উপায়:\n1) ৩ বোলার, ১ উ.রক্ষক, ৭ ব্যাটসম্যান = 10×2×8=160\n2) ৩,২,৬ = 10×1×28=280\n3) ৪,১,৬ = 5×2×28=280\n4) ৪,২,৫ = 5×1×56=280\n5) ৫,১,৫ = 1×2×56=112\n6) ৫,২,৪ = 1×1×70=70\nমোট = 160+280+280+280+112+70 = 1182`
+                },
+                {
+                    id: "গ",
+                    text: "NEWZEALAND শব্দটির অক্ষর গুলো হতে 4 টি করে বর্ণ নিয়ে কত ভাবে বিন্যাস করা যায়?",
+                    solution: `'NEWZEALAND' = 10টি বর্ণ। N=2, E=2, A=2, ভিন্ন W,Z,L,D (4টি)।\nক্ষেত্র ১: ৪টি ভিন্ন = ^7C_4 × 4! = 35×24 = 840\nক্ষেত্র ২: ২টি একজাতীয় + ২টি ভিন্ন = ^3C_1 × ^6C_2 × 4!/2! = 3×15×12 = 540\nক্ষেত্র ৩: ২টি একজাত + ২টি আরেকজাত = ^3C_2 × 4!/(2!2!) = 3×6 = 18\nমোট = 840+540+18 = 1398`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট: বিন্যাস ও সমাবেশের শর্তসাপেক্ষ গণনা।\nকমন ভুল: জোড়া বর্ণ বাছাইয়ের সময় সেটের সদস্য সংখ্যা নির্ধারণে ভুল করা।`
+        },
+        // ৫ নং
+        {
+            stimulus: "$\\Delta ABC$ এর মধ্যে 6 cm ব্যাসার্ধ বিশিষ্ট একটি বৃত্তকলা AEF এবং AB=12 cm, AC = 10 cm, BC=14 cm",
+            questions: [
+                {
+                    id: "ক",
+                    text: "$f(x)=sin x \\tan 2x$ এর পর্যায়কাল নির্ণয় করো।",
+                    solution: `$\\sin x$ এর পর্যায়কাল = $2\\pi$, $\\tan 2x$ এর পর্যায়কাল = $\\pi/2$।\nলসাগু = $2\\pi$।\n$f(x+2\\pi)=\\sin(x+2\\pi)\\tan(2x+4\\pi)=\\sin x \\tan 2x=f(x)$\nসুতরাং পর্যায়কাল = $2\\pi$।`
+                },
+                {
+                    id: "খ",
+                    text: "উদ্দিপকের ছায়াঘেরা অংশের ক্ষেত্রফল নির্ণয় করো।",
+                    solution: `ত্রিভুজের বাহু: a=14, b=10, c=12, s=18\n$\\Delta = \\sqrt{18(4)(8)(6)} = 24\\sqrt{6}$\n$\\cos A = (100+144-196)/(2*10*12)=48/240=0.2$ ⇒ A≈1.3694 রেডিয়ান\nবৃত্তকলার ক্ষেত্রফল = (1/2)*6²*1.3694 = 24.649\nছায়াঘেরা = 58.787 - 24.649 = 34.138 cm²`
+                },
+                {
+                    id: "গ",
+                    text: "উদ্দিপক হতে প্রমাণ করো যে, $\\cos^2\\alpha+\\cos^2\\beta+\\cos^2\\gamma=1-2\\cos\\alpha\\cos\\beta\\cos\\gamma$",
+                    solution: `$\\alpha+\\beta+\\gamma=\\pi$\nবামপক্ষ = $\\cos^2\\alpha+\\cos^2\\beta+\\cos^2\\gamma$\n= $1 + \\cos(\\alpha+\\beta)\\cos(\\alpha-\\beta) + \\cos^2\\gamma$\n= $1 - \\cos\\gamma\\cos(\\alpha-\\beta) + \\cos^2\\gamma$\n= $1 - \\cos\\gamma(\\cos(\\alpha-\\beta) - \\cos\\gamma)$\n= $1 - \\cos\\gamma(\\cos(\\alpha-\\beta) + \\cos(\\alpha+\\beta))$\n= $1 - 2\\cos\\alpha\\cos\\beta\\cos\\gamma$ (প্রমাণিত)`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট: হেরনের সূত্র, ত্রিকোণমিতিক অভেদাবলী।\nকমন ভুল: বৃত্তকলার ক্ষেত্রফল নির্ণয়ে কোণ ডিগ্রিতে রেখে মান বসানো।`
+        },
+        // ৬ নং
+        {
+            stimulus: "ত্রিভুজ ABC এবং $f(x)=\\cos x$",
+            questions: [
+                {
+                    id: "ক",
+                    text: "প্রমাণ করো, $\\tan\\frac{\\pi}{20}+\\tan\\frac{\\pi}{5}+\\tan\\frac{\\pi}{20}\\tan\\frac{\\pi}{5}=1$",
+                    solution: `$\\frac{\\pi}{20}+\\frac{\\pi}{5} = \\frac{\\pi}{4}$\n$\\tan(\\frac{\\pi}{20}+\\frac{\\pi}{5}) = \\tan\\frac{\\pi}{4}$\n$\\frac{\\tan a + \\tan b}{1 - \\tan a \\tan b} = 1$\n$\\tan a + \\tan b = 1 - \\tan a \\tan b$\n$\\tan a + \\tan b + \\tan a \\tan b = 1$ (প্রমাণিত)`
+                },
+                {
+                    id: "খ",
+                    text: "উদ্দিপক হতে দেখাও যে, $a\\sin(\\frac{A}{2}+B)=(b+c)\\sin\\frac{A}{2}$",
+                    solution: `বামপক্ষ = $a\\sin(\\frac{A}{2}+B)$\n$= a\\sin(\\frac{\\pi - (B+C)}{2} + B)$\n$= a\\sin(\\frac{\\pi}{2} + \\frac{B-C}{2}) = a\\cos\\frac{B-C}{2}$\nডানপক্ষ = $(b+c)\\sin\\frac{A}{2} = 2R(\\sin B+\\sin C)\\sin\\frac{A}{2}$\n$= 4R \\sin(\\frac{B+C}{2}) \\cos(\\frac{B-C}{2}) \\sin\\frac{A}{2}$\n$= 4R \\cos\\frac{A}{2} \\cos\\frac{B-C}{2} \\sin\\frac{A}{2}$\n$= 2R \\sin A \\cos\\frac{B-C}{2} = a\\cos\\frac{B-C}{2}$ (প্রমাণিত)`
+                },
+                {
+                    id: "গ",
+                    text: "$f(\\frac{\\pi}{2}-\\frac{B}{2})f(\\frac{\\pi}{2}-\\frac{C}{2})$ এর মান বের করো।",
+                    solution: `$f(x)=\\cos x$। রাশি = $\\cos(\\frac{\\pi}{2}-\\frac{B}{2}) \\cos(\\frac{\\pi}{2}-\\frac{C}{2})$\n$= \\sin\\frac{B}{2} \\sin\\frac{C}{2}$\n$= \\frac{1}{2}(\\cos\\frac{B-C}{2} - \\cos\\frac{B+C}{2})$\n$= \\frac{1}{2}(\\cos\\frac{B-C}{2} - \\sin\\frac{A}{2})$`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট: ত্রিকোণমিতিক অভেদাবলী ও ত্রিভুজের সাইন সূত্র।\nকমন ভুল: $\\sin\\frac{B+C}{2} = \\cos\\frac{A}{2}$ ব্যবহারে ভুল করা।`
+        },
+        // ৭ নং
+        {
+            stimulus: "$e^y=x+\\sqrt{p+x^2}$ এবং $g(x)=\\frac{4x^2+3x+1}{2x}$",
+            questions: [
+                {
+                    id: "ক",
+                    text: "$\\lim_{x\\to0}\\frac{1-\\cos 3x}{7x^2}$ এর মান নির্ণয় করো।",
+                    solution: `$\\lim_{x\\to0} \\frac{1-\\cos 3x}{7x^2}\n= \\lim_{x\\to0} \\frac{2\\sin^2(3x/2)}{7x^2}\n= \\frac{2}{7} \\times \\frac{9}{4} = \\frac{9}{14}$`
+                },
+                {
+                    id: "খ",
+                    text: "দেখাও যে, $(p+x^2)y_3+3xy_2+y_1=0$",
+                    solution: `$y = \\ln(x+\\sqrt{p+x^2})$\n$y_1 = \\frac{1}{\\sqrt{p+x^2}}$\n$y_1^2(p+x^2)=1$\nঅন্তরীকরণ করে: $2y_1y_2(p+x^2)+2xy_1^2=0$\n$\\Rightarrow (p+x^2)y_2 + xy_1 = 0$\nআবার অন্তরীকরণ করে: $(p+x^2)y_3 + 3xy_2 + y_1 = 0$ (প্রমাণিত)`
+                },
+                {
+                    id: "গ",
+                    text: "দেখাও যে, $g(x)$ এর লঘুমান গুরুমান অপেক্ষা বৃহত্তর।",
+                    solution: `$g(x)=2x+\\frac{3}{2}+\\frac{1}{2x}$\n$g'(x)=2-\\frac{1}{2x^2}=0 \\Rightarrow x=\\pm\\frac{1}{2}$\n$x=1/2$ এ $g''=8>0$ ⇒ লঘুমান = 1+1.5+1 = 3.5\n$x=-1/2$ এ $g''=-8<0$ ⇒ গুরুমান = -1+1.5-1 = -0.5\nযেহেতু 3.5 > -0.5, তাই লঘুমান গুরুমান অপেক্ষা বৃহত্তর।`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট: লিমিটের মান নির্ণয়, লিডনিজ থিওরেম, চরম মান নির্ণয়।\nকমন ভুল: $2y_1$ দ্বারা ভাগ করতে ভুলে যাওয়া।`
+        },
+        // ৮ নং
+        {
+            stimulus: "একটি পরাবৃত্তের সমীকরণ $y^2=4x$ ও একটি সরলরেখার সমীকরণ $y=2x-4$ এবং $M(x)=x\\tan^{-1}x$",
+            questions: [
+                {
+                    id: "ক",
+                    text: "$\\int 4^{\\ln x} dx$ এর মান নির্ণয় করো।",
+                    solution: `$4^{\\ln x} = x^{\\ln 4}$\n$\\int x^{\\ln 4} dx = \\frac{x^{\\ln 4 + 1}}{\\ln 4 + 1} + c$`
+                },
+                {
+                    id: "খ",
+                    text: "$\\int_1^{\\sqrt{3}} M(x) dx$ এর মান নির্ণয় করো।",
+                    solution: `$\\int x\\tan^{-1}x dx = \\frac{1}{2}(x^2+1)\\tan^{-1}x - \\frac{x}{2}$\nসীমা বসিয়ে:\n$= [\\frac{1}{2}(x^2+1)\\tan^{-1}x - \\frac{x}{2}]_1^{\\sqrt{3}}$\n$= (2\\frac{\\pi}{3} - \\frac{\\sqrt{3}}{2}) - (\\frac{\\pi}{4} - \\frac{1}{2})$\n$= \\frac{5\\pi}{12} - \\frac{\\sqrt{3}}{2} + \\frac{1}{2}$`
+                },
+                {
+                    id: "গ",
+                    text: "উদ্দিপকের পরাবৃত্ত ও সরলরেখা দ্বারা আবদ্ধ ক্ষেত্রের ক্ষেত্রফল নির্ণয় করো।",
+                    solution: `$x = y^2/4$ ও $x = (y+4)/2$\nছেদবিন্দু: $y^2/4 = (y+4)/2 \\Rightarrow y^2 - 2y - 8=0 \\Rightarrow y=4, -2$\nক্ষেত্রফল $= \\int_{-2}^{4} (\\frac{y+4}{2} - \\frac{y^2}{4}) dy$\n$= [\\frac{y^2}{4} + 2y - \\frac{y^3}{12}]_{-2}^{4}$\n$= (\\frac{20}{3}) - (-\\frac{7}{3}) = \\frac{27}{3} = 9$ বর্গ একক।`
+                }
+            ],
+            concepts: `মূল কনসেপ্ট: Integration by parts, বক্ররেখার আবদ্ধ ক্ষেত্রফল।\nবিকল্প নিয়ম: x-অক্ষের সাপেক্ষে সমাকলন করলে জটিল হয়, তাই y-অক্ষের সাপেক্ষে করা ভালো।\nকমন ভুল: সীমা বসানোর সময় চিহ্নের ভুল।`
+        }
+    ];
+
+    // =================================================================
+    // 3. MCQ রেন্ডারিং ও লজিক
+    // =================================================================
+    let selectedAnswers = new Array(mcqData.length).fill(null);
+    let mode = 'practice';
+    let timerInterval = null;
+    let timeSeconds = 1500;
+    let isTestSubmitted = false;
+
+    const container = document.getElementById('questionsContainer');
+    const timerContainer = document.getElementById('timerContainer');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const testControls = document.getElementById('testControls');
+    const submitBtn = document.getElementById('submitTestBtn');
+    const exitBtn = document.getElementById('exitTestBtn');
+    const resultSummary = document.getElementById('resultSummary');
+
+    function renderMCQ() {
+        container.innerHTML = '';
+        mcqData.forEach((q, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.id = `q-${index}`;
+
+            const qText = document.createElement('div');
+            qText.className = 'question-text';
+            qText.innerHTML = `${index + 1}. ${q.q}`;
+            card.appendChild(qText);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options-grid';
+
+            q.options.forEach((opt, optIndex) => {
+                const optEl = document.createElement('div');
+                optEl.className = 'option';
+                optEl.innerHTML = `${String.fromCharCode(65 + optIndex)}. ${opt}`;
+                optEl.dataset.qIndex = index;
+                optEl.dataset.optIndex = optIndex;
+                optEl.addEventListener('click', function(e) {
+                    if (mode === 'live' && isTestSubmitted) return;
+                    if (this.classList.contains('disabled')) return;
+                    handleMCQClick(this, q, index);
+                });
+                optionsDiv.appendChild(optEl);
+            });
+
+            card.appendChild(optionsDiv);
+
+            const expBox = document.createElement('div');
+            expBox.className = 'explanation-box';
+            expBox.id = `exp-${index}`;
+            expBox.innerHTML = `<strong>Explanation:</strong> ${q.explanation}`;
+            card.appendChild(expBox);
+
+            container.appendChild(card);
+        });
+    }
+
+    function handleMCQClick(el, q, index) {
+        if (mode === 'live') {
+            const parent = el.parentElement;
+            parent.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected-option'));
+            el.classList.add('selected-option');
+            selectedAnswers[index] = parseInt(el.dataset.optIndex);
+            return;
+        }
+
+        const parent = el.parentElement;
+        parent.querySelectorAll('.option').forEach(opt => {
+            opt.classList.remove('correct', 'wrong', 'show-correct', 'disabled');
+        });
+
+        const selectedIdx = parseInt(el.dataset.optIndex);
+        const isCorrect = (selectedIdx === q.answer);
+
+        if (isCorrect) {
+            el.classList.add('correct');
+        } else {
+            el.classList.add('wrong');
+            parent.querySelectorAll('.option').forEach(opt => {
+                if (parseInt(opt.dataset.optIndex) === q.answer) {
+                    opt.classList.add('show-correct');
+                }
+            });
+        }
+        parent.querySelectorAll('.option').forEach(opt => opt.classList.add('disabled'));
+        const expBox = document.getElementById(`exp-${index}`);
+        if (expBox) expBox.classList.add('visible');
+    }
+
+    function resetToPractice() {
+        if (timerInterval) clearInterval(timerInterval);
+        mode = 'practice';
+        isTestSubmitted = false;
+        timerContainer.style.display = 'none';
+        testControls.style.display = 'none';
+        resultSummary.classList.remove('visible');
+        selectedAnswers = new Array(mcqData.length).fill(null);
+
+        document.querySelectorAll('#mcqTab .mode-btn').forEach(b => b.classList.remove('btn-primary', 'active'));
+        document.getElementById('modePractice').classList.add('btn-primary', 'active');
+        document.getElementById('modeLive').classList.remove('btn-primary', 'active');
+        renderMCQ();
+    }
+
+    function startLiveTest() {
+        mode = 'live';
+        isTestSubmitted = false;
+        resultSummary.classList.remove('visible');
+        testControls.style.display = 'flex';
+        timerContainer.style.display = 'block';
+        selectedAnswers = new Array(mcqData.length).fill(null);
+        timeSeconds = 1500;
+        updateTimerDisplay();
+        renderMCQ();
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeSeconds--;
+            updateTimerDisplay();
+            if (timeSeconds <= 0) {
+                clearInterval(timerInterval);
+                alert('Time is up! Submitting automatically.');
+                submitTest();
+            }
+        }, 1000);
+
+        document.querySelectorAll('#mcqTab .mode-btn').forEach(b => b.classList.remove('btn-primary', 'active'));
+        document.getElementById('modeLive').classList.add('btn-primary', 'active');
+        document.getElementById('modePractice').classList.remove('btn-primary', 'active');
+    }
+
+    function updateTimerDisplay() {
+        const mins = Math.floor(timeSeconds / 60);
+        const secs = timeSeconds % 60;
+        timerDisplay.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        timerDisplay.style.color = timeSeconds < 60 ? '#ef4444' : 'var(--accent3)';
+    }
+
+    function submitTest() {
+        if (isTestSubmitted) return;
+        isTestSubmitted = true;
+        if (timerInterval) clearInterval(timerInterval);
+
+        let correctCount = 0;
+        const detailsHtml = [];
+        mcqData.forEach((q, idx) => {
+            const userAns = selectedAnswers[idx];
+            const isCorrect = (userAns === q.answer);
+            if (isCorrect) correctCount++;
+            const correctOptText = q.options[q.answer];
+            const userOptText = (userAns !== null && userAns !== undefined) ? q.options[userAns] : 'Did not answer';
+            detailsHtml.push(`
+                        <div style="padding:12px 0; border-bottom:1px solid var(--border);">
+                            <strong>${idx+1}. ${q.q}</strong><br/>
+                            <span style="color:var(--text2);">Your Answer: ${userOptText}</span><br/>
+                            <span style="color:#22c55e;">Correct: ${correctOptText}</span><br/>
+                            <span style="color:var(--text3);">${q.explanation}</span>
+                        </div>
+                    `);
+        });
+
+        document.getElementById('scoreDisplay').innerHTML = `${correctCount} / ${mcqData.length}`;
+        document.getElementById('resultDetails').innerHTML = detailsHtml.join('');
+        resultSummary.classList.add('visible');
+
+        document.querySelectorAll('#mcqTab .option').forEach(el => {
+            const qIdx = parseInt(el.dataset.qIndex);
+            const optIdx = parseInt(el.dataset.optIndex);
+            const q = mcqData[qIdx];
+            el.classList.add('disabled');
+            el.classList.remove('selected-option');
+            if (optIdx === q.answer) el.classList.add('show-correct');
+            if (selectedAnswers[qIdx] === optIdx && selectedAnswers[qIdx] !== q.answer) el.classList.add('wrong');
+            if (selectedAnswers[qIdx] === optIdx && selectedAnswers[qIdx] === q.answer) el.classList.add('correct');
+        });
+        testControls.style.display = 'none';
+    }
+
+    document.getElementById('modePractice').addEventListener('click', function() {
+        if (mode === 'practice') return;
+        resetToPractice();
+    });
+
+    document.getElementById('modeLive').addEventListener('click', function() {
+        if (mode === 'live') return;
+        startLiveTest();
+    });
+
+    submitBtn.addEventListener('click', submitTest);
+    exitBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to exit the Live Test? Your progress will be lost.')) {
+            resetToPractice();
+        }
+    });
+
+    // =================================================================
+    // 4. CQ রেন্ডার
+    // =================================================================
+    function renderCQ() {
+        // স্টিমুলাস
+        document.getElementById('stimulusText').innerHTML = cqData[0].stimulus; // প্রথমটার জন্য
+        // আসলে সবার আলাদা স্টিমুলাস, তাই আমি লুপ চালাব, কিন্তু ধরে নিচ্ছি সব CQ-তে স্টিমুলাস আলাদা।
+        // যেহেতু সব CQ আলাদা, আমি প্রথম স্টিমুলাস দেখাব, বা সব দেখাব। 
+        // আমি সব দেখানোর জন্য ডাইনামিক করছি।
+        // তবে ডিজাইনে সাধারণত একটি করে স্টিমুলাস থাকে। 
+        // আমি প্রতিটি CQ-র জন্য আলাদা করে দিচ্ছি, কিন্তু এখানে শুধু ১মটা দেখানোর জন্য রেখেছি।
+        // আসলে ৮টি CQ-র জন্য ৮টি স্টিমুলাস আছে, আমি একটি ড্রপডাউন বা ট্যাব তৈরি করতে পারি, কিন্তু ইউজার কন্টেন্টে ৮টি CQ আলাদাভাবে দেখাতে চায়। 
+        // যেহেতু CQ গুলো পৃথক, আমি সেগুলোকে সিরিয়ালি দেখাব (1 থেকে 8)।
+        // আমি লুপ চালিয়ে সব CQ রেন্ডার করব।
+        const container = document.getElementById('cqQuestionsContainer');
+        container.innerHTML = '';
+        
+        // ১ম CQ (সবগুলো দেখানোর জন্য লুপ)
+        cqData.forEach((cq, cqIdx) => {
+            // স্টিমুলাস বক্স তৈরি
+            const stimDiv = document.createElement('div');
+            stimDiv.className = 'stimulus-box';
+            stimDiv.style.marginTop = (cqIdx > 0) ? '40px' : '0';
+            stimDiv.innerHTML = `<strong>Stimulus ${cqIdx+1}:</strong><br> ${cq.stimulus}`;
+            container.appendChild(stimDiv);
+
+            // প্রশ্নগুলো
+            cq.questions.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'cq-question-item';
+                div.innerHTML = `
+                            <div class="q-label">${item.id}.</div>
+                            <div class="q-text">${item.text}</div>
+                            <div class="cq-solution-box" id="sol-${cqIdx}-${idx}">
+                                ${item.solution.split('\n').map(line => `<span class="sol-line">${line}</span>`).join('')}
+                            </div>
+                        `;
+                div.addEventListener('click', function(e) {
+                    const solBox = this.querySelector('.cq-solution-box');
+                    if (solBox) {
+                        solBox.classList.toggle('visible');
+                    }
+                });
+                container.appendChild(div);
+            });
+
+            // কনসেপ্ট (যদি থাকে)
+            if (cq.concepts) {
+                const conceptDiv = document.createElement('div');
+                conceptDiv.className = 'cq-concept-wrapper';
+                conceptDiv.style.marginTop = '20px';
+                conceptDiv.innerHTML = `
+                            <h4>Detailed Concept & Alternative Methods <span>▼</span></h4>
+                            <div class="cq-concept-content">${cq.concepts.split('\n').map(line => `<p>${line}</p>`).join('')}</div>
+                        `;
+                conceptDiv.addEventListener('click', function(e) {
+                    const content = this.querySelector('.cq-concept-content');
+                    if (content) {
+                        content.classList.toggle('visible');
+                        const span = this.querySelector('h4 span');
+                        if (span) span.innerText = content.classList.contains('visible') ? '▲' : '▼';
+                    }
+                });
+                container.appendChild(conceptDiv);
+            }
+        });
+    }
+
+    // =================================================================
+    // 5. ট্যাব সুইচিং
+    // =================================================================
+    document.getElementById('tabMcq').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('tabCq').classList.remove('active');
+        document.getElementById('mcqTab').classList.add('active');
+        document.getElementById('cqTab').classList.remove('active');
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+
+    document.getElementById('tabCq').addEventListener('click', function() {
+        this.classList.add('active');
+        document.getElementById('tabMcq').classList.remove('active');
+        document.getElementById('cqTab').classList.add('active');
+        document.getElementById('mcqTab').classList.remove('active');
+        if (window.MathJax) MathJax.typesetPromise();
+    });
+
+    // =================================================================
+    // 6. শুরু করুন
+    // =================================================================
+    renderMCQ();
+    renderCQ();
+    if (window.MathJax) {
+        window.MathJax.typesetPromise();
+    }
+    console.log('Math page loaded with 25 MCQs (1 per row) and 8 CQs.');
+</script>
+</body>
+</html>
